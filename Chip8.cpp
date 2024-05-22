@@ -111,11 +111,94 @@ public:
     {
         uint8_t Vx = (opcode & 0x0F00u) >> 8u;
         uint8_t byte = opcode & 0x00FFu;
-        if (Vx == byte)
+        if (registers[Vx] == byte)
         {
             pc += 2;
         }
     }
+
+    // SE Vx, byte: skip next instruction if Vx != kk
+    void Chip8::OP_4xkk()
+    {
+        uint8_t Vx = (opcode & 0x0F00u) >> 8u;
+        uint8_t byte = opcode & 0x00FFu;
+        if (registers[Vx] != byte)
+        {
+            pc += 2;
+        }
+    }
+
+    // SE Vx, Vy: skip next instruction if Vx = Vy.
+    void Chip8::OP_5xy0()
+    {
+        uint8_t Vx = (opcode & 0x0F00u) >> 8u;
+        uint8_t Vy = opcode & 0x00F0u >> 4u;
+        if (registers[Vx] == registers[Vy])
+        {
+            pc += 2;
+        }
+    }
+
+    // LD Vx, byte: set Vx to byte
+    void Chip8::OP_6xkk()
+    {
+        uint8_t Vx = (opcode & 0x0F00u) >> 8u;
+        uint8_t byte = opcode & 0x00FFu;
+        registers[Vx] = byte;
+    }
+
+    // ADD Vx, byte: set Vx = Vx + kk
+    void Chip8::OP_7xkk()
+    {
+        uint8_t Vx = (opcode & 0x0F00u) >> 8u;
+        uint8_t byte = opcode & 0x00FFu;
+        registers[Vx] += byte;
+    }
+
+    // LD Vx, Vy: set Vx = Vy
+    void Chip8::8xy0()
+    {
+        uint8_t Vx = (opcode & 0x0F00u) >> 8u;
+        uint8_t Vy = opcode & 0x00F0u >> 4u;
+        registers[Vx] = registers[Vy];
+    }
+
+    // OR Vx, Vy: set Vx = Vx OR Vy
+    void Chip8::8xy1()
+    {
+        uint8_t Vx = (opcode & 0x0F00u) >> 8u;
+        uint8_t Vy = opcode & 0x00F0u >> 4u;
+        registers[Vx] |= registers[Vy];
+    }
+
+    // AND Vx, Vy: set Vx = Vx AND Vy
+    void Chip8::8xy2()
+    {
+        uint8_t Vx = (opcode & 0x0F00u) >> 8u;
+        uint8_t Vy = opcode & 0x00F0u >> 4u;
+        registers[Vx] &= registers[Vy];
+    }
+
+    // XOR Vx, Vy: set Vx = Vx XOR Vy
+    void Chip8::8xy3()
+    {
+        uint8_t Vx = (opcode & 0x0F00u) >> 8u;
+        uint8_t Vy = opcode & 0x00F0u >> 4u;
+        registers[Vx] ^= registers[Vy];
+    }
+
+    // ADD Vx, Vy: set Vx = Vx ADD Vy, Vy = carry
+    void Chip8::8xy4()
+    {
+        uint8_t Vx = (opcode & 0x0F00u) >> 8u;
+        uint8_t Vy = opcode & 0x00F0u >> 4u;
+        uint16_t sum = Vx + Vy;
+
+        registers[0xFu] = sum > 255u ? 1 : 0;
+        registers[Vx] = sum & 0xFFu;
+    }
+
+    
 
 private:
     std::default_random_engine randGen;
